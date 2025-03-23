@@ -12,9 +12,9 @@ public class MistralChatController {
     public MistralChatController(MistralChatService mistralChatService) {
         this.mistralChatService = mistralChatService;
     }
-
+    //https://hook.eu2.make.com/ofqevfqb9rcifz84jppy4c1bm7adl3lu
     @PostMapping("/chat")
-    public ResponseEntity<String> chatWithMistral(@RequestBody ChatRequestDTO request) {
+    public ResponseEntity<String> chatWithMistral(@RequestBody ChatRequest request) {
         return mistralChatService.getChatResponse(request.getMessage());
     }
 }

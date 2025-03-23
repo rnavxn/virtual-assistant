@@ -4,7 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Map;
+import com.Project.Virtual.Assistant.task.Task;
+import com.Project.Virtual.Assistant.task.TaskService;
 
 @Service
 public class AutomationService {
@@ -15,9 +16,16 @@ public class AutomationService {
     @Value("${make.webhook.url}")
     private String makeWebhookUrl;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+    private final TaskService taskService;
 
-    public String triggerAutomation(Map<String, Object> payload, String platform) {
+    public AutomationService(RestTemplate restTemplate, TaskService taskService) {
+        this.restTemplate = restTemplate;
+        this.taskService = taskService;
+    }
+
+    public String triggerAutomation(AutomationRequest request) {
+        String platform = request.getPlatform();
         String webhookUrl = "zapier".equalsIgnoreCase(platform) ? zapierWebhookUrl :
                             "make".equalsIgnoreCase(platform) ? makeWebhookUrl : null;
 
@@ -25,6 +33,17 @@ public class AutomationService {
             return "Invalid platform: " + platform;
         }
 
-        return restTemplate.postForObject(webhookUrl, payload, String.class);
+        // Send the automation request to Zapier/Make
+        String response = restTemplate.postForObject(webhookUrl, request, String.class);
+
+        // Save the task in the Task module
+        Task newTask = new Task();
+        newTask.setTitle(request.getTaskTitle());
+        newTask.setDescription(request.getTaskDescription());
+        newTask.setPlatform(request.getPlatform());
+
+        taskService.saveTask(newTask); // Save to database
+
+        return response;
     }
 }

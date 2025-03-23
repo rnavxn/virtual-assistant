@@ -2,8 +2,6 @@ package com.Project.Virtual.Assistant.apiHandling;
 
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/automation")
 public class AutomationController {
@@ -15,8 +13,7 @@ public class AutomationController {
     }
 
     @PostMapping("/trigger")
-    public String triggerAutomation(@RequestBody Map<String, Object> requestPayload) {
-        return automationService.triggerAutomation(requestPayload, (String) requestPayload.get("platform"));
+    public String triggerAutomation(@RequestBody AutomationRequest request) {
+        return automationService.triggerAutomation(request);
     }
 }
-
